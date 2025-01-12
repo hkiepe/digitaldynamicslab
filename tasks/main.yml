@@ -1,0 +1,54 @@
+---
+# tasks file for roles/learnansible-example-role
+
+- name: "Update all packages to the latest version"
+  ansible.builtin.apt:
+    name: "*"
+    state: "latest"
+    update_cache: true
+  tags:
+    - "skip_ansible_lint"
+
+- name: "Install packages"
+  ansible.builtin.apt:
+    state: "present"
+    pkg:
+      - "ntp"
+      - "sntp"
+      - "ntp-doc"
+
+- name: "Configure NTP"
+  ansible.builtin.template:
+    src: "./ntp.conf.j2"
+    dest: "/etc/ntp.conf"
+    mode: "0644"
+  notify: "Restart ntp"
+
+- name: Ensure user jonasz is created
+  ansible.builtin.user:
+    name: jonasz
+    home: /home/jonasz
+    shell: /bin/bash
+    password: "{{ 'LDzSq^NP5*G@UTUPvEYWS@LWjFXeBMY&AwkZRogKH8$r@$EVQgsMq8sAw9co2oPe6AeWZY8fR2q6opo$AvMH%7k@*Q#JcB^QgrDvMaXDSGA9M@w!vfjmqw&WMBfKgW@E' | password_hash('sha512') }}"
+    create_home: yes
+    state: present
+    update_password: on_create
+
+- name: Ensure home directory has correct permissions
+  ansible.builtin.file:
+    path: /home/jonasz
+    owner: jonasz
+    group: jonasz
+    mode: '0700'
+
+- name: Add SSH key for user jonasz
+  ansible.builtin.authorized_key:
+    user: jonasz
+    key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCfMhd//WfMsAINKDJSbhtihcsIo7PuEopjwlBo964DyJE9CZ4J9/thGVf/TAO8xot3JvET4w8Y/1oUx+SFsL5rM9NDefKq+ZbI229YdcpMUvSMxeb7CicW0FcO9VZy2mB7OqW4Ao6zYSTxRijjmOatN1KivFFxWH/7+Aw3bE2s0r/bw6a355Hnbj85DkYg1XiWSuEB0i5gzza8DwFs5aRCTvnTNRlppFg3B9XLXPcLpSclR1oqtw2YKPXKkrPSTei7plA0H99CrwG4MTx6LQzYjM1EPCrv8vx8ES6epmIDfVRL6x2D9gxoI0jbPWIh/1ho/6FkfybmMHO1OVj4FpiPbzXCXkRA6YqEOYZHEFTJmfN38G/ZCWRYI4fKTGOjtbxJQY4IDxBEKjsn7qkD8WClOZamvlKBhOJglIHdrb6vyEukXiQOW9xyWt97gcbLasxCf0o7u7Lx0d4rlqofRm1huO/fR8zFFBmXwOGO4rdMWu8r5SMUxz74Okj/fA5UB0Oa6D57w++yBdwkVWJbikCVSPtg0ZJgCDTidKG0Q3YINc9kcKI+ikMZmD9HSZussxzY3Sy67EjPM8keosTJZJyDKtm8I/18tG3HzMDtmpKAMYprT+TWzNq6k68pV01p3EInlk6yMONNVpR7WyviQN6b0orvIDVCorOj1wkrkLZV1Q== loafofbead63@gmail.com"
+    state: present
+
+- name: Force user jonasz to change password on first login
+  ansible.builtin.command:
+    cmd: chage -d 0 jonasz
+  become: yes
+
