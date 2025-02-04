@@ -1,7 +1,0 @@
----
-# handlers file for roles/learnansible-example-role
-
-- name: "Restart ntp"
-  ansible.builtin.service:
-    name: "ntp"
-    state: "restarted"
