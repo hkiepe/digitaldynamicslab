@@ -1,12 +1,9 @@
-[web_servers]
 pluto
+
+[web_servers]
 
 [db_servers]
-pluto
 
 [file_servers]
-pluto
 
 [workstations]
-pluto
-

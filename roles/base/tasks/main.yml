@@ -3,6 +3,11 @@
     user: simone
     key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPNw+dssTQwCn8IWpSacKlLYyi6/3QRdgXCwFOYwPFL4 ansible"
 
+- name: add ssh key for henrik
+  authorized_key:
+    user: henrik
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKRxMPtmuMnLgqfu24FeZ72EAu0ouNJp3FVVqLPs52b1 kiepe@next-kraftwerke.de"
+
 - name: generate sshd_config file from template
   tags: ssh
   template:
