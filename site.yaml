@@ -74,7 +74,7 @@
 
     - name: Show Nginx test output
       debug:
-        msg: "{{ mginx_test.stdout_lines }}"
+        msg: "{{ nginx_test.stdout_lines }}"
 
     - name: Fail if Nginx configuration is invalid
       fail:
