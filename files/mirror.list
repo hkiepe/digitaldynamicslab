@@ -1,0 +1,22 @@
+############# config ##################
+set base_path    /var/spool/apt-mirror
+set mirror_path  $base_path/mirror
+set skel_path    $base_path/skel
+set var_path     $base_path/var
+set cleanscript  $var_path/clean.sh
+set defaultarch  amd64
+set nthreads     10
+set _tilde       0
+set limit_rate	 250k
+
+############# end config ##############
+
+deb http://deb.debian.org/debian bookworm main contrib non-free
+deb-src http://deb.debian.org/debian bookworm main contrib non-free
+
+deb http://security.debian.org/debian-security bookworm-security main contrib non-free
+deb-src http://security.debian.org/debian-security bookworm-security main contrib non-free
+
+deb http://deb.debian.org/debian bookworm-updates main contrib non-free
+deb-src http://deb.debian.org/debian bookworm-updates main contrib non-free
+

@@ -1,0 +1,9 @@
+[Unit]
+Description=Apt Mirror Repository Synchronization
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/apt-mirror
+User=root
+
