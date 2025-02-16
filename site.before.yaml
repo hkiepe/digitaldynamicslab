@@ -1,0 +1,157 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+    - name: Update repo cache (Debian, Ubuntu)
+      tags: always
+      apt:
+        update_cache: yes
+      changed_when: false
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+
+    - name: Install recommended initial packages (Debian, Ubuntu)
+      tags: always
+      package:
+        name:
+          - htop
+          - vim
+          - tmux
+        state: latest
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: add ssh key for simone
+    tags: always
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLZsrEvjVv8/oRE3jjQlAKAGJJuqf+5bGkCcXuOXFHV ansible"
+
+- hosts: proxmox
+  become: true
+  tasks:
+
+    - name: Install packages for proxmox
+      tags: cluster,proxmox,virt,virtualization
+      package:
+        name: curl
+        state: latest
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+
+- hosts: apt_mirror
+  become: true
+  tasks:
+    
+    - name: Install packages for repohub
+      tags: repository,repo
+      package:
+        name:
+          - apt-mirror
+          - nginx
+        state: latest
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+
+    - name: copy nginx config
+      tags: repository,repo
+      copy: 
+        src: nginx_repohub
+        dest: /etc/nginx/sites-available/repohub
+        owner: root
+        group: root
+        mode: 0644
+      register: nginx
+
+    - name: Validate nginx configuration
+      tags: repository,repo
+      command: nginx -t
+      register: nginx_test
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Show Nginx test output
+      debug:
+        msg: "{{ nginx_test.stdout_lines }}"
+
+    - name: Fail if Nginx configuration is invalid
+      fail:
+        msg: "Nginx configuration test failed! Check for errors."
+      when: nginx_test.rc != 0
+
+    - name: Check if symlink exists
+      stat:
+        path: /etc/nginx/sites-enabled/repohub
+      register: symlink_status
+
+    - name: Create symlink if it doesnt exist
+      file:
+        src: /etc/nginx/sites-available/repohub
+        dest: /etc/nginx/sites-enabled/repohub
+        state: link
+      when: not symlink_status.stat.exists
+      register: symlink_creation
+
+    - name: Display change status
+      debug:
+        msg: "Symlink was created"
+      when: symlink_creation.changed
+
+    - name: restart nginx service (Debian, Ubuntu)
+      tags: repository, repo
+      service:
+        name: nginx
+        state: restarted
+      when: nginx_test.rc == 0 and (nginx.changed | default(false) or symlink_creation.changed | default(false))
+
+    - name: start nginx service (Debian, Ubuntu)
+      tags: repository,repo
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+
+    - name: copy apt_mirror config
+      tags: repository,repo
+      copy: 
+        src: mirror.list
+        dest: /etc/apt/mirror.list
+        owner: root
+        group: root
+        mode: 0644
+        register: apt-mirror
+
+    - name: create timer unit for apt-mirror
+      tags: repository,repo
+      copy: 
+        src: apt-mirror.timer
+        dest: /etc/systemd/system/apt-mirror.timer
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: create service unit for apt-mirror
+      tags: repository,repo
+      copy:
+        src: apt-mirror.service
+        dest: /etc/systemd/system/apt-mirror.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: start apt-mirror timer (Debian, Ubuntu)
+      tags: repository,repo
+      systemd:
+        name: apt-mirror.timer
+        enabled: yes
+        state: started
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+
+    - name: Ensure apt-mirror service is enabled
+      service:
+        name: apt-mirror.service
+        enabled: yes
+

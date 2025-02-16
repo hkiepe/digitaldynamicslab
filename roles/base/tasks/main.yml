@@ -1,19 +1,10 @@
 - name: add ssh key for simone
   authorized_key:
     user: simone
-    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPNw+dssTQwCn8IWpSacKlLYyi6/3QRdgXCwFOYwPFL4 ansible"
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLZsrEvjVv8/oRE3jjQlAKAGJJuqf+5bGkCcXuOXFHV ansible"
 
 - name: add ssh key for henrik
   authorized_key:
     user: henrik
-    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKRxMPtmuMnLgqfu24FeZ72EAu0ouNJp3FVVqLPs52b1 kiepe@next-kraftwerke.de"
+    key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDPaQ9gfLZoBjWr99t7aG2dGJhDz2YxEk4LZvUggrh611WgjsRby6/2Da31LqRvJ8qoUKuC+kSoPGUTyv+NniVMIPKNw0gUbu1gQv83lCdDBfq9BunKoWQTpXwdr3KhkKS6IurQhmnRzSr6bGna1hy+bUvNiJlJa2v55svJODKVGjAueyM1qnPGfixBlDMeYL2NuwcbG8nkmZb+oIdDRNgSlfpixohZKw25YP48/RUjjvrAwNqUjYJq3xLosC8LY58v+q/p0oMtRDQ9TPgUetfoTkV2GxHsuQDyS2E5ntC/9sVEFbk/VxNALH8qkLuBrHj+6//UBUFViN3m0xb4r1VlLZQ2JKYhkh0sYGvqMylHI3k6ofHYrVgRmI0tfzJIMp0xz6zcaHcNGXqA5bWqfl8yWYx0GnNT8Rd/z4uFLkp76OkM2bI30gpQsHRtLBGNFDz6TM71jrpb8pWZGRJrVO5Fr28xLJfoA3A3lt4gk0+pzykiTqSlHR+HtsI3HXVz+u7tZB4b0PfonhSIg6ctfjxU7FU8KNM4GPoCxa+jgggzlCAaIxow1ZCj/BvsQQPTlAf9FHvTt+7z9WnuA54bqn3nIbnxVEHOSDaqrY/zhWGs0NddCUIshh8Q/lJGcrlc5wj/yfFFqmO3CaW8/25nrewvDglKbU5GSUetAXNlxImYdQ== mail@hkiepe.de"
 
-- name: generate sshd_config file from template
-  tags: ssh
-  template:
-    src: "{{ ssh_template_file }}"
-    dest: /etc/ssh/sshd_config
-    owner: root
-    group: root
-    mode: 0644
-  notify: restart_sshd

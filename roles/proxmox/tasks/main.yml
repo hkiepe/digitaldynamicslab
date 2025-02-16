@@ -1,0 +1,14 @@
+- name: Install packages for proxmox
+  tags: cluster,proxmox,virt,virtualization
+  package:
+    name:
+      - curl
+      - ifupdown2
+      - bridge-utils
+      - pve-edk2-firmware
+      - proxmox-ve
+      - postfix
+      - open-iscsi
+      - pve-edk2-firmware-aarch64
+    state: latest
+
