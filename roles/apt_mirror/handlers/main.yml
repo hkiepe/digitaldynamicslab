@@ -1,5 +1,6 @@
-- name: restart_apache
-  tags: apache,centos,httpd
+- name: restart_nginx
+  tags: repository,repo
   service:
-    name: "{{ apache_service }}"
+    name: nginx
     state: restarted
+

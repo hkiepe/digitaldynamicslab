@@ -1,9 +1,7 @@
 - name: Install packages for repohub
   tags: repository,repo
   package:
-    name:
-      - apt-mirror
-      - nginx
+    name: "{{ packages_apt_mirror }}"
     state: latest
   when: ansible_distribution in ["Debian", "Ubuntu"]
 
@@ -15,18 +13,19 @@
     owner: root
     group: root
     mode: 0644
-  register: nginx
+  notify: restart_nginx
 
 - name: Validate nginx configuration
   tags: repository,repo
   command: nginx -t
   register: nginx_test
+  notify: restart_nginx
   changed_when: false
   ignore_errors: yes
 
 - name: Show Nginx test output
   debug:
-    msg: "{{ nginx_test.stdout_lines }}"
+    msg: "{{ nginx_test.stdout_lines + nginx_test.stderr_lines }}"
 
 - name: Fail if Nginx configuration is invalid
   fail:
@@ -44,19 +43,13 @@
     dest: /etc/nginx/sites-enabled/repohub
     state: link
   when: not symlink_status.stat.exists
+  notify: restart_nginx
   register: symlink_creation
 
 - name: Display change status
   debug:
     msg: "Symlink was created"
   when: symlink_creation.changed
-
-- name: restart nginx service (Debian, Ubuntu)
-  tags: repository, repo
-  service:
-    name: nginx
-    state: restarted
-  when: nginx_test.rc == 0 and (nginx.changed | default(false) or symlink_creation.changed | default(false))
 
 - name: start nginx service (Debian, Ubuntu)
   tags: repository,repo

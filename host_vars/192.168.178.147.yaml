@@ -1,0 +1,6 @@
+packages_apt_mirror:
+  - apt-mirror
+  - nginx
+
+ssh_users: "henrik simone"
+ssh_template_file: sshd_config_debian.j2

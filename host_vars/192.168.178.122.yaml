@@ -1,0 +1,12 @@
+packages_proxmox:
+  - curl
+  - ifupdown2
+  - bridge-utils
+  - pve-edk2-firmware
+  - proxmox-ve
+  - postfix
+  - open-iscsi
+  - pve-edk2-firmware-aarch64
+
+ssh_users: "henrik simone"
+ssh_template_file: sshd_config_debian.j2
